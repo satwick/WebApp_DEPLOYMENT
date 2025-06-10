@@ -1,0 +1,14 @@
+Namespace: trex
+Env: dev
+Replicas: 1
+resources:
+  limits:
+    cpu: 200m
+    memory: 512Mi
+  requests:
+    cpu: 200m
+    memory: 512Mi
+pdb:
+  enabled: false
+  available:
+    min: 1  
