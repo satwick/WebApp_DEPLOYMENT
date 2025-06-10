@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: trex-ui-{{ .Values.Env }}
+  namespace: {{ .Values.Namespace }}
+spec:
+  replicas: {{ .Values.Replicas }}
+  selector:
+    matchLabels:
+      app: trex-ui
+  template:
+    metadata:
+      labels: 
+        app: trex-ui
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: name
+                operator: In
+                values:
+                - trex-ui-{{ .Values.Env }}
+            topologyKey: "kubernetes.io/hostname"
+      securityContext:
+        runAsUser: 999
+      containers:
+        - name: trex-ui
+          imagePullPolicy: Always
+          securityContext:
+            runAsUser: 999
+            runAsNonRoot: true
+          ports:
+            - containerPort: 8080
+          {{ if eq .Values.Namespace "prod" }}
+          image: dflbusacr.azurecr.io/trex-ui:latest-prod
+          {{ else }}
+          image: dflbusacr.azurecr.io/trex-ui:latest-{{ .Values.Env }}
+          {{ end }}
+          resources:
+            requests:
+              memory : {{ .Values.resources.requests.memory }}
+              cpu : {{ .Values.resources.requests.cpu }}
+            limits:
+              memory : {{ .Values.resources.limits.memory }}
+              cpu : {{ .Values.resources.limits.cpu }}
+#          env:
+#          - name: FLUENTD_ELASTIC_SEARCH_HOST
+#            valueFrom:
+#              secretKeyRef:
+#                name: fluent-cred
+#                key: ef_search_host
+#          - name: FLUENTD_ELASTIC_AUTH_USER
+#            valueFrom:
+#              secretKeyRef:
+#                name: fluent-cred
+#                key: ef_auth_user
+#          - name: FLUENTD_ELASTIC_AUTH_PASSWORD
+#            valueFrom:
+ #             secretKeyRef:
+  #              name: fluent-cred
+   #             key: ef_auth_pass
+      imagePullSecrets:
+        - name: acrcred    
+      

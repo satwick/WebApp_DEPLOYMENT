@@ -1,0 +1,12 @@
+{{- if .Values.pdb.enabled }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: trex-ui-{{ .Values.Env }}
+  namespace: {{ .Values.Namespace }}
+spec:
+  minAvailable: {{ .Values.pdb.available.min }}
+  selector:
+    matchLabels:
+      app: trex-ui
+{{- end }}
